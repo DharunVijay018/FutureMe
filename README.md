@@ -6,30 +6,98 @@ FutureMe Vault is an enterprise-grade, privacy-first digital time-capsule web ap
 
 ---
 
-## 1. Core Architecture & Time-Lock Security Guarantees
+## 1. Quick Start Guide for Visual Studio Code
 
-### Non-Negotiable Time-Lock Enforcement
-Unlike generic time-capsule templates that merely hide an unseal button or rely on client-side timer checks, **FutureMe Vault enforces temporal locks at both the PostgreSQL database layer and server API boundary**:
+### Step 1: Open the Project in VS Code
+You can open this project in VS Code in either of two ways:
+- **From VS Code**: Launch VS Code, click **File > Open Folder...**, navigate to your Desktop, and select the `FutureMe-Vault` folder.
+- **From Windows Terminal / PowerShell**:
+  ```bash
+  code "$HOME\Desktop\FutureMe-Vault"
+  ```
 
-1. **Server-Side Authorization & Masking**:
-   - When a capsule is in `'sealed'` status and `now() < scheduled_opening_at` (evaluated strictly in UTC), server actions and API route handlers (`/api/capsules/[id]`) **redact the message body** and return `"[TIME_LOCKED_CONTENT_ENCRYPTED_AND_REDACTED_UNTIL_SCHEDULED_OPENING]"`.
-   - Private attachments are strictly **redacted** (`attachments: []`).
-   - Any direct programmatic attempt to invoke unsealing before the scheduled timestamp returns **HTTP 403 Forbidden: `TIME_LOCK_VIOLATION`**.
+### Step 2: Open the Integrated Terminal
+In VS Code, press `Ctrl + \`` (Ctrl + backtick) or click **Terminal > New Terminal** from the top menu.
 
-2. **Tamper-Resistant Clock Verification**:
-   - Eligibility is evaluated exclusively against the authoritative UTC server clock, preventing client clock manipulation attacks.
-   - For automated testing and determinism, service methods accept an optional `referenceNow` parameter, avoiding any weakening of production security.
+### Step 3: Install Required Dependencies
+All required dependencies are specified in `package.json` and locked with `package-lock.json`. Run:
+```bash
+npm install
+```
+*(Dependencies are already pre-installed in this local export, so this will quickly verify everything is in place).*
 
-3. **Insecure Direct Object Reference (IDOR) & RLS**:
-   - User ownership isolation is enforced at the database policy level (`auth.uid() = owner_id`).
-   - Querying another user's capsule returns **HTTP 403 Forbidden: `ACCESS_DENIED`**.
+### Step 4: Configure Environment Variables (Optional)
+The project is built with **dual-mode architecture**:
+- **Out of the Box (Local Fallback Mode)**: No `.env.local` is required to run the application immediately. Authentication, sample capsules, drafting, sealing, time-locks, countdowns, and simulated notifications function 100% offline out-of-the-box.
+- **Production Supabase Mode**: If you want to connect to a live Supabase project, copy `.env.example` to `.env.local`:
+  ```bash
+  cp .env.example .env.local
+  ```
+  Then fill in your Supabase credentials (see [Section 6](#6-connecting-supabase-production-database--auth) below).
 
-4. **Immutability Once Sealed**:
-   - Once a capsule is sealed, edits to the message text, title, or attachments are permanently locked to preserve the honesty of the historical record.
+### Step 5: Start the Development Server
+Execute the following command in the VS Code terminal:
+```bash
+npm run dev
+```
+
+### Step 6: View the Website in Chrome
+Open your web browser (Google Chrome, Edge, Brave, etc.) and navigate to:
+```text
+http://localhost:3000
+```
+- Click **"Sign In"** and use the 1-click **"Fill Demo Account"** button (`traveler@futuremevault.io` / `Vault2026!`) to immediately test sealed, ready-to-open, and archived capsules.
+- Or click **"Create your first capsule"** to go through the 5-step creation, attachment, and sealing ceremony.
+
+### Step 7: How to Stop the Server
+When you want to stop the local development server:
+1. Click into the VS Code terminal where `npm run dev` is running.
+2. Press `Ctrl + C`.
+3. If prompted `Terminate batch job (Y/N)?`, type `Y` and press `Enter`.
+
+### Step 8: How to Make Changes and See Live Updates
+Next.js provides **Fast Refresh** (Hot Module Replacement):
+- Open any file under `src/app/` (for example, edit text in `src/app/page.tsx` or `src/app/dashboard/page.tsx`).
+- Save the file (`Ctrl + S`).
+- Look at your browser window—the changes will appear instantly without losing your state or requiring a manual page refresh.
+
+### Step 9: Running Tests & Production Build
+Run the comprehensive Vitest test suite (43 unit & integration tests covering authorization, time-lock gates, attachment RLS, cron jobs, and timezone shifts):
+```bash
+npm test
+```
+To run the optimized production build and verify TypeScript types:
+```bash
+npm run build
+```
 
 ---
 
-## 2. Visual Design System
+## 2. Core Architecture & Time-Lock Security Guarantees
+
+Unlike generic templates that merely hide an unseal button or rely on client-side timer checks, **FutureMe Vault enforces temporal locks at both the PostgreSQL database layer and server API boundary**:
+
+1. **Server-Side Authorization & Content Redaction**:
+   - When a capsule is in `'sealed'` status and `now() < scheduled_opening_at` (evaluated strictly in UTC), server route handlers (`/api/capsules/[id]`) **redact the message body** and return `"[TIME_LOCKED_CONTENT_ENCRYPTED_AND_REDACTED_UNTIL_SCHEDULED_OPENING]"`.
+   - Private attachments are strictly **redacted** (`attachments: []`).
+   - Dedicated attachment proxy (`/api/capsules/[id]/attachments/[attachmentId]`) rejects pre-unlock downloads with **HTTP 403: `TIME_LOCK_VIOLATION`**.
+   - Any programmatic unsealing before the scheduled timestamp returns **HTTP 403 Forbidden: `TIME_LOCK_VIOLATION`**.
+
+2. **Tamper-Resistant Clock Verification**:
+   - Eligibility is evaluated exclusively against the authoritative UTC server clock, preventing client clock manipulation attacks.
+   - Timezone calculations use `Intl.DateTimeFormat` parts to guarantee accurate UTC mapping across Daylight Saving Time (EDT/EST, UTC offsets).
+
+3. **Insecure Direct Object Reference (IDOR) & RLS**:
+   - User ownership isolation is enforced at both the database policy level (`auth.uid() = owner_id`) and API layer.
+   - Querying another user's capsule or attachments returns **HTTP 403 Forbidden: `ACCESS_DENIED`**.
+
+4. **State Transition Rigidity**:
+   - Drafts can be edited.
+   - Once sealed, `PATCH` modifications return **HTTP 400: `IMMUTABLE_ERROR`** and deletions return **HTTP 403: `PROTECTION_RULE`** to preserve the honesty of the historical record.
+
+---
+
+## 3. Visual Design System
 
 Built dark-mode-first with a futuristic, editorial aesthetic:
 
@@ -45,36 +113,6 @@ Built dark-mode-first with a futuristic, editorial aesthetic:
 
 ---
 
-## 3. Database Schema & Migrations
-
-The full SQL migration script is located at:
-`supabase/migrations/20261022000001_create_futureme_vault_schema.sql`
-
-### Tables
-- `profiles`: User identity, display names, avatars, and primary timezone.
-- `capsules`: Core capsule records (`title`, `content`, `capsule_type`, `status`, `category`, `scheduled_opening_at`, `sealed_at`, `opened_at`).
-- `capsule_attachments`: Metadata and storage pointers for images and media.
-- `capsule_reflections`: Post-unlock journaling entries written after opening.
-- `notification_preferences`: User opt-ins for unlock alerts and early reminders.
-- `notification_delivery_records`: Audit log guaranteeing idempotent notification delivery.
-
-### Key RLS Function
-```sql
-CREATE OR REPLACE FUNCTION public.can_view_capsule_content(capsule_row public.capsules)
-RETURNS BOOLEAN AS $$
-BEGIN
-    IF capsule_row.status = 'draft' THEN RETURN TRUE; END IF;
-    IF capsule_row.status = 'opened' THEN RETURN TRUE; END IF;
-    IF capsule_row.status = 'sealed' AND timezone('utc', now()) >= capsule_row.scheduled_opening_at THEN
-        RETURN TRUE;
-    END IF;
-    RETURN FALSE;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-```
-
----
-
 ## 4. Key Application Features
 
 - **Public Landing Page**: Editorial storytelling, 3-step mechanics, interactive sealed-capsule countdown preview, security explanation, FAQ accordion, zero fake metrics.
@@ -84,7 +122,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
   1. *Type Selection*: Letter, Goal, Prediction, Memory, Custom.
   2. *Rich Composer*: Title, message editor, category tags, character/word counters, dynamic guided reflection prompts, automatic local draft preservation.
   3. *Memory Preservation*: Image uploads (JPEG, PNG, WebP) with custom captions.
-  4. *Temporal Scheduling*: Horizon presets (1m, 6m, 1y, 3y, 5y), custom datetime-local selector with strict past-date rejection, explicit timezone mapping.
+  4. *Temporal Scheduling*: Horizon presets (1m, 6m, 1y, 3y, 5y), custom datetime selector with strict past-date rejection, explicit IANA timezone mapping.
   5. *Preview & Sealing*: Detailed review with explicit modal confirmation before irreversible sealing.
 - **Vault Archive**: Tabbed browsing (*All*, *Sealed*, *Ready to Open*, *Opened*), search by title/category, live countdown cards.
 - **Opening Ceremony**: Server eligibility verification, subtle opening transition with celebratory confetti blast, revealed letter & memory photos, post-unlock reflection journaling.
@@ -92,66 +130,63 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 ---
 
-## 5. Development & Testing Setup
+## 5. Project Directory Structure
 
-### Prerequisites
-- Node.js `v18+` or `v20+` (tested on Node v24)
-- npm or pnpm
-
-### Quick Start
-```bash
-# 1. Clone or navigate to the project directory
-cd futureme-vault
-
-# 2. Install dependencies
-npm install
-
-# 3. Configure environment variables (optional for local fallback mode)
-cp .env.example .env.local
-
-# 4. Start local development server
-npm run dev
-```
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-### Running Test Suite
-The project includes a comprehensive Vitest unit and integration test suite:
-```bash
-npm test
-```
-**Test coverage encompasses:**
-- UTC time-lock eligibility and past/future calculation logic (`src/lib/time/timezone.test.ts`)
-- Ownership isolation and IDOR rejection (`src/lib/capsules/capsuleService.test.ts`)
-- Pre-unlock content redaction and attachment filtering (`src/lib/capsules/capsuleService.test.ts`)
-- Premature unsealing rejection (`src/lib/capsules/capsuleService.test.ts`)
-- Post-unlock reflection restrictions (`src/lib/capsules/capsuleService.test.ts`)
-- Notification idempotency and non-falsified delivery status (`src/lib/notifications/notificationService.test.ts`)
-- Zod schema validations for forms, uploads, and dates (`src/lib/validations/capsule.test.ts`)
-- API Route handler security and status codes (`src/app/api/capsules/[id]/route.test.ts`)
-
-### Production Build
-```bash
-npm run build
-npm start
+```text
+FutureMe-Vault/
+├── .vscode/                 # VS Code workspace settings & recommended extensions
+├── public/                  # Static assets & SVG icons
+├── src/
+│   ├── app/
+│   │   ├── api/             # Next.js App Router Route Handlers
+│   │   │   ├── capsules/    # /api/capsules/[id] & attachments proxy
+│   │   │   └── cron/        # /api/cron/process-notifications scheduled processor
+│   │   ├── auth/            # Signin, Signup, Password Reset pages
+│   │   ├── create/          # 5-Stage Capsule Creation Studio
+│   │   ├── dashboard/       # User Mission Dashboard
+│   │   ├── settings/        # Account & Sovereignty settings
+│   │   ├── vault/           # Capsule Vault archive & detail pages
+│   │   ├── globals.css      # Design system CSS & Tailwind utilities
+│   │   ├── layout.tsx       # Root layout with fonts & Navbar/Footer
+│   │   └── page.tsx         # High-impact editorial landing page
+│   ├── components/          # Reusable UI primitives (Button, Modal, Countdown, etc.)
+│   ├── lib/                 # Core domain logic
+│   │   ├── auth/            # Dual-mode authentication service
+│   │   ├── capsules/        # Capsule service & time-lock engine
+│   │   ├── notifications/   # Idempotent notification service
+│   │   ├── supabase/        # Supabase client & server factory
+│   │   ├── time/            # Timezone & UTC conversion math
+│   │   └── validations/     # Zod schema validation rules
+│   └── types/               # TypeScript data definitions & database schemas
+├── supabase/
+│   └── migrations/          # Complete SQL schema & security hardening scripts
+├── .env.example             # Documented template of environment variables
+├── .gitignore               # Excludes secrets, node_modules, and build output
+├── package.json             # Scripts & dependency definitions
+├── tailwind.config.ts       # Color palette & typographic scale
+├── tsconfig.json            # Strict TypeScript configuration
+└── vitest.config.ts         # Vitest test runner configuration
 ```
 
 ---
 
-## 6. External Service Configuration
+## 6. Connecting Supabase (Production Database & Auth)
 
-### Supabase (Production Database & Auth)
-1. Create a project at [supabase.com](https://supabase.com).
-2. Run the SQL schema script in `supabase/migrations/20261022000001_create_futureme_vault_schema.sql` via Supabase SQL Editor or Supabase CLI (`supabase db push`).
-3. Set the following in `.env.local`:
+To switch from the local fallback engine to a cloud Supabase instance:
+1. Create a free project at [supabase.com](https://supabase.com).
+2. Go to the **SQL Editor** in your Supabase dashboard and run the migrations in order:
+   - `supabase/migrations/20261022000001_create_futureme_vault_schema.sql`
+   - `supabase/migrations/20261022000002_security_hardening.sql`
+3. Create a private Storage bucket named `capsule-memories`.
+4. Copy `.env.example` to `.env.local`:
+   ```bash
+   cp .env.example .env.local
+   ```
+5. Enter your project API keys in `.env.local`:
    ```env
    NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGci...
-   SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOi...
+   SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key-here
+   CRON_SECRET=your-random-32-char-cron-secret
    ```
-*Note: If Supabase credentials are not configured, the application automatically uses its local high-fidelity persistence engine, ensuring zero crashes and 100% test pass rates in offline/demo environments.*
-
-### Email Notifications (Optional)
-To enable real email dispatch for unlock alerts:
-1. Obtain an API key from [Resend](https://resend.com) or SendGrid.
-2. Set `RESEND_API_KEY=re_...` in `.env.local`.
-*If omitted, the notification service records scheduled deliveries as `pending` with explanatory audit logs, never falsifying provider responses.*
+6. Restart the dev server (`npm run dev`). The application will seamlessly connect to your live PostgreSQL database!
