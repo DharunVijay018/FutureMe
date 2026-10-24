@@ -450,12 +450,6 @@ export const capsuleService = {
     if (!capsule) throw new Error('Capsule not found');
     if (capsule.owner_id !== userId) throw new Error('Unauthorized');
 
-    if (capsule.status === 'sealed') {
-      throw new Error(
-        'PROTECTION_RULE: Sealed capsules cannot be deleted individually before opening to protect your future commitments.'
-      );
-    }
-
     capsules = capsules.filter((c) => c.id !== capsuleId);
     saveStoredCapsules(capsules);
 

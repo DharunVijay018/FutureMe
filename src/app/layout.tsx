@@ -1,39 +1,40 @@
-import type { Metadata } from 'next';
-import { Space_Grotesk, Inter } from 'next/font/google';
-import './globals.css';
-import { Navbar } from '@/components/layout/Navbar';
-import { Footer } from '@/components/layout/Footer';
+"use client";
+import { Montserrat } from 'next/font/google';
+import "./globals.css";
+import Navbar from "@/components/layout/Navbar";
+import { useState, useEffect } from "react";
+import Image from "next/image";
 
-const spaceGrotesk = Space_Grotesk({
-  subsets: ['latin'],
-  variable: '--font-heading',
-  display: 'swap',
+// Import Montserrat with multiple weights, including italic for that slanted look
+const montserrat = Montserrat({ 
+  subsets: ['latin'], 
+  variable: '--font-montserrat',
+  weight: ['400', '500', '600', '700', '900'] 
 });
 
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-sans',
-  display: 'swap',
-});
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const [showSplash, setShowSplash] = useState(true);
 
-export const metadata: Metadata = {
-  title: 'FutureMe Vault — Premium Digital Time-Capsule',
-  description:
-    'A sovereign digital sanctuary for letters, reflections, predictions, and memories sealed behind cryptographically and server-enforced time-locks.',
-  keywords: ['time capsule', 'future self', 'temporal vault', 'digital preservation', 'journaling'],
-};
+  useEffect(() => {
+    const timer = setTimeout(() => setShowSplash(false), 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
   return (
-    <html lang="en" className={`${spaceGrotesk.variable} ${inter.variable} dark`}>
-      <body className="min-h-screen flex flex-col bg-jet text-text-primary antialiased selection:bg-cerulean/30 selection:text-white">
-        <Navbar />
-        <main className="flex-1 flex flex-col">{children}</main>
-        <Footer />
+    <html lang="en" className={montserrat.variable}>
+      <body>
+        {showSplash ? (
+          <div className="flex items-center justify-center h-screen bg-[#050505]">
+            <Image src="/logo.png" alt="FutureMe Vault" width={400} height={200} priority />
+          </div>
+        ) : (
+          <div className="min-h-screen flex flex-col">
+            <Navbar />
+            <main className="flex-grow pt-16 px-4 md:px-8">
+              {children}
+            </main>
+          </div>
+        )}
       </body>
     </html>
   );

@@ -54,6 +54,21 @@ export default function VaultPage() {
     fetchCapsules();
   }, [router]);
 
+  // DELETE FUNCTIONALITY - Now calling local service directly
+  const handleDelete = async (capsuleId: string) => {
+    if (!confirm("Are you sure you want to permanently delete this sealed prediction?")) return;
+    
+    try {
+      if (!session?.id) return;
+      await capsuleService.deleteCapsule(session.id, capsuleId);
+      
+      // Remove from UI immediately upon success
+      setCapsules(prev => prev.filter(c => c.id !== capsuleId));
+    } catch (err: any) {
+      alert(`Error: ${err.message || 'Failed to delete'}`);
+    }
+  };
+  
   // Loading skeleton screen
   if (isLoading || !session) {
     return (
@@ -272,16 +287,26 @@ export default function VaultPage() {
                     )}
                   </span>
 
-                  <Link href={`/vault/${capsule.id}`}>
-                    <Button
-                      size="sm"
-                      variant={isReady ? 'rose' : 'ghost'}
-                      className="px-2.5 py-1 text-xs"
-                      rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
+                  <div className="flex items-center gap-3">
+                    {/* NEW DELETE BUTTON */}
+                    <button
+                      onClick={() => handleDelete(capsule.id)}
+                      className="text-red-500 hover:text-red-400 font-mono text-[10px] uppercase tracking-wider transition-colors"
                     >
-                      {isReady ? 'Unlock' : 'Inspect'}
-                    </Button>
-                  </Link>
+                      Delete
+                    </button>
+                    
+                    <Link href={`/vault/${capsule.id}`}>
+                      <Button
+                        size="sm"
+                        variant={isReady ? 'rose' : 'ghost'}
+                        className="px-2.5 py-1 text-xs"
+                        rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
+                      >
+                        {isReady ? 'Unlock' : 'Inspect'}
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
               </Card>
             );
