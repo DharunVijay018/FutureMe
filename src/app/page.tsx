@@ -210,4 +210,245 @@ export default function HomePage() {
       </section>
 
       {/* How it Works Section */}
-      <section id="how-it
+      <section id="how-it-works" className="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto scroll-mt-16">
+        <div className="text-center max-w-2xl mx-auto mb-16">
+          <h2 className="text-xs font-mono uppercase tracking-widest text-cerulean font-bold mb-3">
+            The Temporal Protocol
+          </h2>
+          <h3 className="text-3xl sm:text-4xl font-heading font-bold text-text-primary">
+            Three Steps to Crossing Time
+          </h3>
+          <p className="text-sm sm:text-base text-text-secondary mt-3 leading-relaxed">
+            A deliberate ritual of reflection, cryptographic sealing, and future rediscovery.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Step 1 */}
+          <Card className="flex flex-col justify-between" hoverEffect>
+            <div>
+              <div className="w-12 h-12 rounded-xl bg-cerulean/10 border border-cerulean/30 flex items-center justify-center text-cerulean mb-5">
+                <FileText className="w-6 h-6" />
+              </div>
+              <span className="text-xs font-mono text-cerulean font-bold">STAGE 01</span>
+              <h4 className="text-xl font-heading font-semibold text-text-primary mt-1 mb-2">
+                Capture the Moment
+              </h4>
+              <p className="text-xs sm:text-sm text-text-secondary leading-relaxed">
+                Choose a reflection prompt, compose an unfiltered personal letter, articulate a career
+                prediction, or attach memories that define where you stand today.
+              </p>
+            </div>
+            <div className="mt-6 pt-4 border-t border-charcoal-border/60 text-xs text-text-muted flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-cerulean" />
+              <span>Autosaves drafts automatically</span>
+            </div>
+          </Card>
+
+          {/* Step 2 */}
+          <Card className="flex flex-col justify-between" hoverEffect>
+            <div>
+              <div className="w-12 h-12 rounded-xl bg-neonRose/10 border border-neonRose/30 flex items-center justify-center text-neonRose mb-5">
+                <Lock className="w-6 h-6" />
+              </div>
+              <span className="text-xs font-mono text-neonRose font-bold">STAGE 02</span>
+              <h4 className="text-xl font-heading font-semibold text-text-primary mt-1 mb-2">
+                Engage the Time-Lock
+              </h4>
+              <p className="text-xs sm:text-sm text-text-secondary leading-relaxed">
+                Select your opening milestone: 1 month, 1 year, 5 years, or an exact future moment.
+                Review the preview and seal it permanently in the vault.
+              </p>
+            </div>
+            <div className="mt-6 pt-4 border-t border-charcoal-border/60 text-xs text-text-muted flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-neonRose" />
+              <span>Immutable once sealed</span>
+            </div>
+          </Card>
+
+          {/* Step 3 */}
+          <Card className="flex flex-col justify-between" hoverEffect>
+            <div>
+              <div className="w-12 h-12 rounded-xl bg-surface-elevated border border-charcoal-borderLight flex items-center justify-center text-text-primary mb-5">
+                <KeyRound className="w-6 h-6 text-cerulean" />
+              </div>
+              <span className="text-xs font-mono text-text-muted font-bold">STAGE 03</span>
+              <h4 className="text-xl font-heading font-semibold text-text-primary mt-1 mb-2">
+                Reconnect Across Time
+              </h4>
+              <p className="text-xs sm:text-sm text-text-secondary leading-relaxed">
+                When the scheduled time arrives, the server verifies eligibility and unlocks your
+                capsule. Read your original words and record post-unlock reflections.
+              </p>
+            </div>
+            <div className="mt-6 pt-4 border-t border-charcoal-border/60 text-xs text-text-muted flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Post-unlock reflection journaling</span>
+            </div>
+          </Card>
+        </div>
+      </section>
+
+      {/* Security & Architecture Section */}
+      <section id="security" className="py-24 bg-surface-deep/40 border-y border-charcoal-border/60">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface-elevated border border-charcoal-border text-xs text-cerulean font-medium mb-4">
+                <Database className="w-3.5 h-3.5 text-cerulean" />
+                <span>PostgreSQL Row Level Security (RLS)</span>
+              </div>
+              <h3 className="text-3xl sm:text-4xl font-heading font-bold text-text-primary leading-tight">
+                Cryptographic Temporal Integrity, Not Client Timers
+              </h3>
+              <p className="text-sm text-text-secondary mt-4 leading-relaxed">
+                Most web applications that offer time capsules merely hide an unseal button with CSS.
+                FutureMe Vault enforces temporal locks at both the PostgreSQL database layer and server
+                API boundary.
+              </p>
+
+              <div className="mt-8 space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-lg bg-cerulean/10 border border-cerulean/30 flex items-center justify-center text-cerulean shrink-0 mt-0.5">
+                    <Shield className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <h5 className="text-xs font-semibold text-text-primary">
+                      Strict UTC Clock Synchronization
+                    </h5>
+                    <p className="text-xs text-text-secondary mt-0.5">
+                      Client manipulation of local device clocks cannot trigger premature access.
+                      Timestamps are locked to Universal Coordinated Time (UTC).
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 rounded-lg bg-neonRose/10 border border-neonRose/30 flex items-center justify-center text-neonRose shrink-0 mt-0.5">
+                    <EyeOff className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <h5 className="text-xs font-semibold text-text-primary">
+                      Server-Side Body Redaction
+                    </h5>
+                    <p className="text-xs text-text-secondary mt-0.5">
+                      Until the unlock timestamp arrives, the server explicitly substitutes capsule
+                      bodies with an encrypted placeholder and withholds all attachments.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Code Snippet */}
+            <div className="rounded-xl bg-jet border border-charcoal-border p-5 font-mono text-xs text-text-secondary shadow-2xl">
+              <div className="flex items-center justify-between pb-3 border-b border-charcoal-border/70 mb-4 text-text-muted">
+                <span className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-red-500/80 inline-block" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-yellow-500/80 inline-block" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80 inline-block" />
+                  <span className="ml-2 text-[11px]">can_view_capsule_content.sql</span>
+                </span>
+                <span className="text-[11px] text-cerulean">SECURITY DEFINER</span>
+              </div>
+              <pre className="overflow-x-auto text-[11px] leading-relaxed text-text-secondary">
+{`-- Enforced at the database layer
+CREATE OR REPLACE FUNCTION public.can_view_capsule_content(
+    capsule_row public.capsules
+) RETURNS BOOLEAN AS $$
+BEGIN
+    IF capsule_row.status = 'draft' THEN
+        RETURN TRUE;
+    END IF;
+    
+    IF capsule_row.status = 'opened' THEN
+        RETURN TRUE;
+    END IF;
+    
+    -- Strict UTC server timestamp comparison
+    IF capsule_row.status = 'sealed' AND 
+       timezone('utc', now()) >= capsule_row.scheduled_opening_at THEN
+        RETURN TRUE;
+    END IF;
+    
+    -- Access strictly blocked prior to target moment
+    RETURN FALSE;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;`}
+              </pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section id="faq" className="py-24 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto scroll-mt-16">
+        <div className="text-center mb-16">
+          <h2 className="text-xs font-mono uppercase tracking-widest text-cerulean font-bold mb-3">
+            Inquiries & Guarantees
+          </h2>
+          <h3 className="text-3xl sm:text-4xl font-heading font-bold text-text-primary">
+            Frequently Asked Questions
+          </h3>
+        </div>
+
+        <div className="space-y-4">
+          {faqs.map((faq, idx) => {
+            const isOpen = activeFaq === idx;
+            return (
+              <div
+                key={faq.q}
+                className="rounded-xl border border-charcoal-border bg-surface-elevated/60 backdrop-blur-sm overflow-hidden transition-colors"
+              >
+                <button
+                  type="button"
+                  onClick={() => setActiveFaq(isOpen ? null : idx)}
+                  aria-expanded={isOpen}
+                  className="w-full flex items-center justify-between p-5 text-left text-sm font-semibold text-text-primary hover:text-cerulean transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-cerulean"
+                >
+                  <span>{faq.q}</span>
+                  <ChevronDown
+                    className={`w-4 h-4 text-text-muted transition-transform duration-200 ${
+                      isOpen ? 'rotate-180 text-cerulean' : ''
+                    }`}
+                  />
+                </button>
+                {isOpen && (
+                  <div className="px-5 pb-5 text-xs sm:text-sm text-text-secondary leading-relaxed border-t border-charcoal-border/50 pt-3 animate-fade-in">
+                    {faq.a}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Final Call to Action */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto text-center">
+        <div className="rounded-3xl p-8 sm:p-14 bg-gradient-to-b from-surface-elevated via-surface-deep to-jet border border-charcoal-borderLight shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 right-1/4 w-64 h-64 rounded-full bg-cerulean/10 blur-3xl pointer-events-none" />
+          <h3 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold text-text-primary mb-4">
+            Begin your journey through time.
+          </h3>
+          <p className="text-sm sm:text-base text-text-secondary max-w-xl mx-auto mb-8">
+            Create an account or launch your first digital time capsule draft today. Your future self
+            will thank you.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link href="/create">
+              <Button size="lg" variant="primary">
+                Seal Your First Capsule
+              </Button>
+            </Link>
+            <Link href="/auth/signin">
+              <Button size="lg" variant="secondary">
+                Sign In to Vault
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}

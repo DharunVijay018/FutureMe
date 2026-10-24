@@ -60,7 +60,7 @@ export default function VaultPage() {
     
     try {
       if (!session?.id) return;
-      await capsuleService.deleteCapsule(session.id, capsuleId);
+      await capsuleService.deleteCapsule(session.id, capsuleId, true);
       
       // Remove from UI immediately upon success
       setCapsules(prev => prev.filter(c => c.id !== capsuleId));

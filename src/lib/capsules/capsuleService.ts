@@ -441,14 +441,20 @@ export const capsuleService = {
   },
 
   /**
-   * Deletes a draft or opened capsule.
+   * Deletes a draft or opened capsule (or sealed if allowSealed is explicitly confirmed).
    */
-  async deleteCapsule(userId: string, capsuleId: string): Promise<void> {
+  async deleteCapsule(userId: string, capsuleId: string, allowSealed: boolean = false): Promise<void> {
     let capsules = getStoredCapsules();
     const capsule = capsules.find((c) => c.id === capsuleId);
 
     if (!capsule) throw new Error('Capsule not found');
     if (capsule.owner_id !== userId) throw new Error('Unauthorized');
+
+    if (capsule.status === 'sealed' && !allowSealed) {
+      throw new Error(
+        'PROTECTION_RULE: Sealed capsules cannot be deleted individually before opening to protect your future commitments.'
+      );
+    }
 
     capsules = capsules.filter((c) => c.id !== capsuleId);
     saveStoredCapsules(capsules);
