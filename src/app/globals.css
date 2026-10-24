@@ -56,3 +56,9 @@ input {
     background-color: #0a0a0f !important;
     color: white !important;
 }
+
+/* Fix for dropdown menus (timezone selector) */
+select, select option {
+    background-color: #0a0a0f !important;
+    color: white !important;
+}
