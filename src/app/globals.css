@@ -40,3 +40,19 @@ body {
     -2px -2px 15px rgba(0, 255, 255, 0.4); /* Cyan top glow */
   letter-spacing: 0.05em;
 }
+
+/* Fix for browser autofill overriding dark mode inputs */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px #0a0a0f inset !important; /* Matches your dark surface color */
+    -webkit-text-fill-color: white !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Ensure standard inputs always have a dark background */
+input {
+    background-color: #0a0a0f !important;
+    color: white !important;
+}
