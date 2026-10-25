@@ -17,10 +17,17 @@ export default function ResetPasswordPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    const res = await authService.resetPassword(email);
-    setMessage(res.message);
-    setSubmitted(true);
-    setIsLoading(false);
+    try {
+      await authService.resetPassword(email);
+      setMessage('Check your email for the reset link');
+      setSubmitted(true);
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : 'Failed to send reset email';
+      setMessage(errorMsg);
+      setSubmitted(true);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

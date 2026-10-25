@@ -31,15 +31,11 @@ export default function SignUpPage() {
     setIsLoading(true);
 
     try {
-      const res = await authService.signUp(email, password, displayName, timezone);
-      if (res.error) {
-        setError(res.error);
-        setIsLoading(false);
-        return;
-      }
+      await authService.signUp(email, password, displayName, timezone);
       router.push('/dashboard');
-    } catch {
-      setError('An unexpected registration error occurred.');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'An unexpected registration error occurred.';
+      setError(msg);
       setIsLoading(false);
     }
   };

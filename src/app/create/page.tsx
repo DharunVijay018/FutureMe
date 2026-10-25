@@ -120,29 +120,32 @@ export default function CreateCapsulePage() {
   const [validationError, setValidationError] = useState<string | null>(null);
 
   useEffect(() => {
-    const user = authService.getCurrentSession();
-    if (!user) {
-      router.push('/auth/signin');
-      return;
-    }
-    setSession(user);
-    setTimezone(user.timezone || 'UTC');
-
-    // Attempt to restore autosaved local draft
-    try {
-      const cached = localStorage.getItem(DRAFT_CACHE_KEY);
-      if (cached) {
-        const draft = JSON.parse(cached);
-        if (draft.title) setTitle(draft.title);
-        if (draft.content) setContent(draft.content);
-        if (draft.capsuleType) setCapsuleType(draft.capsuleType);
-        if (draft.category) setCategory(draft.category);
-        if (draft.scheduledDate) setScheduledDate(draft.scheduledDate);
-        if (draft.attachments) setAttachments(draft.attachments);
+    const init = async () => {
+      const user = await authService.getCurrentSession();
+      if (!user) {
+        router.push('/auth/signin');
+        return;
       }
-    } catch {}
+      setSession(user);
+      setTimezone(user.timezone || 'UTC');
 
-    setIsInitializing(false);
+      // Attempt to restore autosaved local draft
+      try {
+        const cached = localStorage.getItem(DRAFT_CACHE_KEY);
+        if (cached) {
+          const draft = JSON.parse(cached);
+          if (draft.title) setTitle(draft.title);
+          if (draft.content) setContent(draft.content);
+          if (draft.capsuleType) setCapsuleType(draft.capsuleType);
+          if (draft.category) setCategory(draft.category);
+          if (draft.scheduledDate) setScheduledDate(draft.scheduledDate);
+          if (draft.attachments) setAttachments(draft.attachments);
+        }
+      } catch {}
+
+      setIsInitializing(false);
+    };
+    init();
   }, [router]);
 
   // Periodic autosave to local cache

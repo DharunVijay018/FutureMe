@@ -22,15 +22,11 @@ export default function SignInPage() {
     setIsLoading(true);
 
     try {
-      const res = await authService.signIn(email, password);
-      if (res.error) {
-        setError(res.error);
-        setIsLoading(false);
-        return;
-      }
+      await authService.signIn(email, password);
       router.push('/dashboard');
-    } catch {
-      setError('An unexpected authentication error occurred.');
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'An unexpected authentication error occurred.';
+      setError(msg);
       setIsLoading(false);
     }
   };
@@ -38,11 +34,16 @@ export default function SignInPage() {
   const handleDemoSignIn = async () => {
     setError(null);
     setIsLoading(true);
-    const res = await authService.signIn('traveler@futuremevault.io', 'Vault2026!');
-    if (res.error) {
-      await authService.signUp('traveler@futuremevault.io', 'Vault2026!', 'Chronos Traveler', 'UTC');
+    try {
+      await authService.signIn('traveler@futuremevault.io', 'Vault2026!');
+      router.push('/dashboard');
+    } catch {
+      try {
+        await authService.signUp('traveler@futuremevault.io', 'Vault2026!', 'Chronos Traveler', 'UTC');
+        await authService.signIn('traveler@futuremevault.io', 'Vault2026!');
+      } catch {}
+      router.push('/dashboard');
     }
-    router.push('/dashboard');
   };
 
   return (

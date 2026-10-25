@@ -33,14 +33,14 @@ export default function VaultPage() {
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
 
   useEffect(() => {
-    const user = authService.getCurrentSession();
-    if (!user) {
-      router.push('/auth/signin');
-      return;
-    }
-    setSession(user);
+    const init = async () => {
+      const user = await authService.getCurrentSession();
+      if (!user) {
+        router.push('/auth/signin');
+        return;
+      }
+      setSession(user);
 
-    const fetchCapsules = async () => {
       try {
         const userCaps = await capsuleService.listUserCapsules(user.id);
         setCapsules(userCaps);
@@ -51,7 +51,7 @@ export default function VaultPage() {
       }
     };
 
-    fetchCapsules();
+    init();
   }, [router]);
 
   // DELETE FUNCTIONALITY - Now calling local service directly

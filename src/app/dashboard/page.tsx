@@ -36,14 +36,14 @@ export default function DashboardPage() {
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    const user = authService.getCurrentSession();
-    if (!user) {
-      router.push('/auth/signin');
-      return;
-    }
-    setSession(user);
+    const init = async () => {
+      const user = await authService.getCurrentSession();
+      if (!user) {
+        router.push('/auth/signin');
+        return;
+      }
+      setSession(user);
 
-    const loadCapsules = async () => {
       try {
         const userCaps = await capsuleService.listUserCapsules(user.id);
         setCapsules(userCaps);
@@ -54,7 +54,7 @@ export default function DashboardPage() {
       }
     };
 
-    loadCapsules();
+    init();
   }, [router]);
 
   // Loading skeleton screen

@@ -41,18 +41,21 @@ export default function SettingsPage() {
   const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    const user = authService.getCurrentSession();
-    if (!user) {
-      router.push('/auth/signin');
-      return;
-    }
-    setSession(user);
-    setDisplayName(user.displayName);
-    setTimezone(user.timezone || 'UTC');
+    const init = async () => {
+      const user = await authService.getCurrentSession();
+      if (!user) {
+        router.push('/auth/signin');
+        return;
+      }
+      setSession(user);
+      setDisplayName(user.displayName);
+      setTimezone(user.timezone || 'UTC');
 
-    const prefs = notificationService.getUserPreferences(user.id);
-    setNotificationPrefs(prefs);
-    setIsLoading(false);
+      const prefs = notificationService.getUserPreferences(user.id);
+      setNotificationPrefs(prefs);
+      setIsLoading(false);
+    };
+    init();
   }, [router]);
 
   const handleSaveProfile = async (e: React.FormEvent) => {

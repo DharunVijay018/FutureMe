@@ -55,14 +55,14 @@ export default function CapsuleDetailPage() {
   const [reflectionSuccess, setReflectionSuccess] = useState(false);
 
   useEffect(() => {
-    const user = authService.getCurrentSession();
-    if (!user) {
-      router.push('/auth/signin');
-      return;
-    }
-    setSession(user);
+    const init = async () => {
+      const user = await authService.getCurrentSession();
+      if (!user) {
+        router.push('/auth/signin');
+        return;
+      }
+      setSession(user);
 
-    const loadCapsule = async () => {
       try {
         const item = await capsuleService.getCapsuleById(user.id, capsuleId);
         if (!item) {
@@ -78,7 +78,7 @@ export default function CapsuleDetailPage() {
       }
     };
 
-    loadCapsule();
+    init();
   }, [capsuleId, router]);
 
   const handleTriggerOpening = async () => {
