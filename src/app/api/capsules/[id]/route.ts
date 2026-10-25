@@ -162,7 +162,7 @@ export async function DELETE(
       );
     }
 
-    await capsuleService.deleteCapsule(userId, capsuleId, force);
+    await capsuleService.deleteCapsule(userId, capsuleId);
 
     return NextResponse.json({
       success: true,
