@@ -21,7 +21,6 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json().catch(() => ({}));
-    const mockNow = body.mock_now || request.nextUrl.searchParams.get('mock_now') || undefined;
 
     // Scan user capsules (in production, queries database for sealed capsules where scheduled_opening_at <= now())
     // For demo/local fallback, we inspect stored demo users
@@ -33,9 +32,9 @@ export async function POST(request: NextRequest) {
       createdAt: '2026-01-01T00:00:00.000Z',
     };
 
-    const userCapsules = await capsuleService.listUserCapsules(sampleUserSession.id, mockNow);
+    const userCapsules = await capsuleService.listUserCapsules(sampleUserSession.id);
     const eligibleSealed = userCapsules.filter(
-      (c) => c.status === 'sealed' && isCapsuleEligibleToOpen(c.scheduled_opening_at, mockNow)
+      (c) => c.status === 'sealed' && isCapsuleEligibleToOpen(c.scheduled_opening_at)
     );
 
     const results: {
@@ -48,7 +47,6 @@ export async function POST(request: NextRequest) {
       const res = await notificationService.processCapsuleUnlockNotification(
         capsule,
         sampleUserSession.email,
-        mockNow
       );
       results.push({
         capsuleId: capsule.id,

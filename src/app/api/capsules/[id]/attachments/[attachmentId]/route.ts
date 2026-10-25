@@ -18,7 +18,6 @@ export async function GET(
       );
     }
 
-    const mockNow = request.nextUrl.searchParams.get('mock_now') || undefined;
 
     // Load capsule with strict ownership check
     const capsule = await capsuleService.getCapsuleById(userId, capsuleId);
