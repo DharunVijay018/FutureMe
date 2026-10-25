@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
 
     // Scan user capsules (in production, queries database for sealed capsules where scheduled_opening_at <= now())
     // For demo/local fallback, we inspect stored demo users
-    const sampleUserSession = authService.getCurrentSession() || {
+    const sampleUserSession = await authService.getCurrentSession() || {
       id: 'user-demo-001',
       email: 'traveler@futuremevault.io',
       displayName: 'Chronos Traveler',
@@ -32,7 +32,7 @@ export async function POST(request: NextRequest) {
       createdAt: '2026-01-01T00:00:00.000Z',
     };
 
-    const userCapsules = await capsuleService.listUserCapsules(sampleUserSession.id);
+    const userCapsules = await capsuleService.listUserCapsules(sampleUserSession?.id || '');
     const eligibleSealed = userCapsules.filter(
       (c) => c.status === 'sealed' && isCapsuleEligibleToOpen(c.scheduled_opening_at)
     );
