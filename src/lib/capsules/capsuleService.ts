@@ -105,6 +105,23 @@ export const capsuleService = {
     return data;
   },
 
+  async openCapsule(userId: string, capsuleId: string): Promise<Capsule> {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from('capsules')
+      .update({
+        status: 'opened',
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', capsuleId)
+      .eq('owner_id', userId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+  
   async deleteCapsule(userId: string, capsuleId: string): Promise<void> {
     const supabase = createClient();
     const { error } = await supabase

@@ -20,7 +20,7 @@ export async function POST(
     const body = await request.json().catch(() => ({}));
     const mockNow = body.mock_now || undefined;
 
-    const openedCapsule = await capsuleService.openCapsule(userId, capsuleId, mockNow);
+    const openedCapsule = await capsuleService.openCapsule(userId, capsuleId);
 
     return NextResponse.json({
       success: true,
